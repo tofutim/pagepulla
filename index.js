@@ -1,9 +1,25 @@
 var self = require("sdk/self");
+var pageMod = require("sdk/page-mod");
 
-// a dummy function, to show how tests work.
-// to see how to test this function, look at test/test-index.js
-function dummy(text, callback) {
-  callback(text);
+exports.main = function(options, callbacks) {
+  pageMod.PageMod({
+	  include: "*",
+	  contentScriptWhen: "ready",
+	  contentScriptFile: ["./worker.js"],
+	//  attachTo: ["existing", "top"],
+	  onAttach: function(pageWorker) {
+			pageWorker.id = Date.now();
+		  console.log('attaching pageWorker', pageWorker.id,'in tab.ids',pageWorker.tab.id);
+			pageWorker.on('pageshow', function() {
+				console.log('showing pageWorker', pageWorker.id,'in tab.ids',pageWorker.tab.id);
+			});
+			pageWorker.on('pagehide', function() {
+				console.log('hiding pageWorker', pageWorker.id,'in tab.ids',pageWorker.tab.id);
+			});
+	    pageWorker.on('detach', function() {
+				console.log('detaching pageWorker', pageWorker.id,'in tab.ids',pageWorker.tab.id);
+	      detachPageWorker(pageWorker);
+	    });
+	  }
+  });
 }
-
-exports.dummy = dummy;
